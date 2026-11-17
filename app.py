@@ -1,5 +1,6 @@
 
 import streamlit as st
+from misconception_engine import analyze_misconception
 
 st.set_page_config(
     page_title="AI Misconception Analyzer",
@@ -10,10 +11,9 @@ st.set_page_config(
 st.title("🧠 AI Misconception Analyzer")
 st.subheader("Understand how students think and learn.")
 
-st.write(
-    "Identify student misconceptions, "
-    "understand learning gaps, and recommend "
-    "personalized interventions."
+st.markdown(
+    "Detect learning misconceptions and generate "
+    "personalized teaching interventions."
 )
 
 st.divider()
@@ -24,29 +24,53 @@ student_name = st.text_input("Student Name")
 
 question = st.text_input(
     "Question",
-    placeholder="Example: What is 1/2 + 1/4?"
+    value="What is 1/2 + 1/4?"
 )
 
-correct_answer = st.text_input("Correct Answer")
+correct_answer = st.text_input(
+    "Correct Answer",
+    value="3/4"
+)
 
-student_answer = st.text_input("Student's Answer")
+student_answer = st.text_input(
+    "Student's Answer",
+    placeholder="Enter the student's answer"
+)
 
-if st.button("Analyze Answer"):
+if st.button("Analyze Student Answer"):
+
     if student_name and question and correct_answer and student_answer:
+
+        result = analyze_misconception(
+            question,
+            student_answer
+        )
+
+        st.divider()
+
+        st.subheader("Analysis Report")
+
+        st.write("Student:", student_name)
+
         if student_answer.strip() == correct_answer.strip():
-            st.success("Correct answer!")
-            st.write("The student answered correctly.")
+            st.success("Correct Answer")
         else:
-            st.error("Incorrect answer!")
-            st.write("Further investigation is needed.")
-            st.info(
-                "Possible misconception: "
-                "The student may have misunderstood "
-                "the underlying concept."
-            )
+            st.error("Incorrect Answer")
+
+        st.subheader("Detected Misconception")
+        st.warning(result["type"])
+
+        st.subheader("Explanation")
+        st.write(result["explanation"])
+
+        st.subheader("Recommended Intervention")
+        st.info(result["intervention"])
+
     else:
         st.warning("Please complete all fields.")
 
 st.divider()
 
-st.caption("AI Misconception Analyzer | Portfolio Project")
+st.caption(
+    "AI Misconception Analyzer | Learning Intelligence Project"
+)
