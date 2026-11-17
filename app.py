@@ -4,11 +4,12 @@ import pandas as pd
 
 from misconception_engine import analyze_misconception
 from diagnostic_engine import generate_diagnostic_question
+from reasoning_engine import analyze_reasoning
 
 
-# =====================================
+# ==========================================
 # PAGE CONFIGURATION
-# =====================================
+# ==========================================
 
 st.set_page_config(
     page_title="AI Misconception Analyzer",
@@ -17,20 +18,20 @@ st.set_page_config(
 )
 
 
-# =====================================
+# ==========================================
 # SESSION STORAGE
-# =====================================
+# ==========================================
 
 if "assessments" not in st.session_state:
     st.session_state.assessments = []
 
-if "student_reasoning" not in st.session_state:
-    st.session_state.student_reasoning = {}
+if "reasoning_records" not in st.session_state:
+    st.session_state.reasoning_records = {}
 
 
-# =====================================
+# ==========================================
 # HEADER
-# =====================================
+# ==========================================
 
 st.title("🧠 AI Misconception Analyzer")
 
@@ -39,17 +40,17 @@ st.subheader(
 )
 
 st.write(
-    "Identify possible student misconceptions, "
-    "investigate their reasoning, and recommend "
-    "personalized learning interventions."
+    "Analyze student answers, identify possible "
+    "misconceptions, investigate reasoning, and "
+    "recommend personalized interventions."
 )
 
 st.divider()
 
 
-# =====================================
+# ==========================================
 # STUDENT ASSESSMENT
-# =====================================
+# ==========================================
 
 st.header("📝 Student Assessment")
 
@@ -83,9 +84,9 @@ with st.form("assessment_form"):
     )
 
 
-# =====================================
-# ANALYZE ANSWER
-# =====================================
+# ==========================================
+# ANSWER ANALYSIS
+# ==========================================
 
 if submitted:
 
@@ -131,9 +132,9 @@ if submitted:
         )
 
 
-# =====================================
-# LATEST ANALYSIS
-# =====================================
+# ==========================================
+# LATEST STUDENT ANALYSIS
+# ==========================================
 
 if "latest_assessment" in st.session_state:
 
@@ -172,9 +173,9 @@ if "latest_assessment" in st.session_state:
     st.info(latest["Intervention"])
 
 
-    # =================================
+    # ======================================
     # DIAGNOSTIC QUESTIONING
-    # =================================
+    # ======================================
 
     st.divider()
 
@@ -184,7 +185,9 @@ if "latest_assessment" in st.session_state:
         latest["Misconception"]
     )
 
-    st.write("Question to ask the student:")
+    st.write(
+        "Question to ask the student:"
+    )
 
     st.info(diagnostic["question"])
 
@@ -192,32 +195,67 @@ if "latest_assessment" in st.session_state:
         "Purpose: " + diagnostic["purpose"]
     )
 
+
+    # ======================================
+    # STUDENT REASONING ANALYSIS
+    # ======================================
+
+    st.subheader("Student Reasoning")
+
+    reasoning_key = (
+        latest["Student"] + "|" + latest["Question"]
+    )
+
     reasoning = st.text_area(
-        "Student's explanation",
-        value=st.session_state.student_reasoning.get(
-            latest["Student"], ""
+        "Enter the student's explanation",
+        value=st.session_state.reasoning_records.get(
+            reasoning_key, ""
         ),
         placeholder=(
             "Record the student's explanation "
-            "and problem-solving steps..."
+            "and calculation steps..."
         ),
         key="reasoning_input"
     )
 
-    if st.button("Save Student Reasoning"):
+    if st.button("Analyze Student Reasoning"):
 
-        st.session_state.student_reasoning[
-            latest["Student"]
-        ] = reasoning
+        if reasoning.strip():
 
-        st.success(
-            "Student reasoning saved for this session."
-        )
+            reasoning_result = analyze_reasoning(
+                reasoning
+            )
+
+            st.session_state.reasoning_records[
+                reasoning_key
+            ] = reasoning
+
+            st.subheader("Reasoning Analysis Report")
+
+            st.write(
+                "Understanding Level:",
+                reasoning_result["understanding"]
+            )
+
+            st.write(
+                "Evidence:",
+                reasoning_result["evidence"]
+            )
+
+            st.info(
+                reasoning_result["recommendation"]
+            )
+
+        else:
+
+            st.warning(
+                "Please enter the student's explanation."
+            )
 
 
-# =====================================
-# ANALYTICS DASHBOARD
-# =====================================
+# ==========================================
+# LEARNING ANALYTICS DASHBOARD
+# ==========================================
 
 if st.session_state.assessments:
 
@@ -260,9 +298,9 @@ if st.session_state.assessments:
     )
 
 
-    # =================================
+    # ======================================
     # ASSESSMENT HISTORY
-    # =================================
+    # ======================================
 
     st.subheader("Student Assessment History")
 
@@ -272,9 +310,9 @@ if st.session_state.assessments:
     )
 
 
-    # =================================
+    # ======================================
     # MISCONCEPTION FREQUENCY
-    # =================================
+    # ======================================
 
     st.subheader("Misconception Frequency")
 
@@ -289,9 +327,9 @@ if st.session_state.assessments:
 
     if not mistakes.empty:
 
-        frequency = mistakes[
-            "Misconception"
-        ].value_counts()
+        frequency = (
+            mistakes["Misconception"].value_counts()
+        )
 
         st.bar_chart(frequency)
 
@@ -302,23 +340,23 @@ if st.session_state.assessments:
         )
 
 
-    # =================================
+    # ======================================
     # STUDENT PERFORMANCE
-    # =================================
+    # ======================================
 
     st.subheader("Student Performance")
 
     performance = (
-        df.groupby("Student")["Correct"]
-        .mean() * 100
+        df.groupby("Student")["Correct"].mean()
+        * 100
     )
 
     st.bar_chart(performance)
 
 
-    # =================================
+    # ======================================
     # DOWNLOAD REPORT
-    # =================================
+    # ======================================
 
     st.divider()
 
@@ -336,9 +374,9 @@ if st.session_state.assessments:
     )
 
 
-# =====================================
+# ==========================================
 # FOOTER
-# =====================================
+# ==========================================
 
 else:
 
@@ -352,5 +390,5 @@ st.divider()
 
 st.caption(
     "AI Misconception Analyzer | "
-    "Educational Data Intelligence Portfolio Project"
+    "Educational Data Intelligence Portfolio"
 )
