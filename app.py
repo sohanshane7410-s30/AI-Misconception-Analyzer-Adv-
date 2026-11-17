@@ -112,6 +112,17 @@ if st.session_state.assessments:
 
     st.subheader("Misconception Frequency")
 
+    st.subheader("📥 Download Student Report")
+
+    csv_data = df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="Download Assessment Report",
+        data=csv_data,
+        file_name="student_misconception_report.csv",
+        mime="text/csv"
+    )
+
     mistakes = df[
         df["Misconception"]
         != "No misconception detected"
