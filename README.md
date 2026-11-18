@@ -104,3 +104,11 @@ This project demonstrates practical skills in:
 **Deployment:** Streamlit Community Cloud  
 **Database:** Supabase  
 **Status:** Deployed
+
+## Data Privacy and Responsible Use
+
+- Use fictional student names and sample data when testing this application.
+- Do not enter real student personal information or confidential academic records.
+- Assessment records are stored in a Supabase database.
+- This is a portfolio demonstration, not a production student-record management system.
+- Access to the public demo may allow visitors to submit sample assessments.
