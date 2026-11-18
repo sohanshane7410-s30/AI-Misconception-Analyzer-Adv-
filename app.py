@@ -1,6 +1,7 @@
 
 import streamlit as st
 import pandas as pd
+from supabase_client import get_supabase_client
 
 from misconception_engine import analyze_misconception
 from diagnostic_engine import generate_diagnostic_question
