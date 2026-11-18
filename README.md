@@ -56,6 +56,8 @@ Clone the repository:
 
 ```bash
 git clone YOUR_GITHUB_REPOSITORY_URL
+git clone https://github.com/sohanshane7410-s30/AI-Misconception-Analyzer-Adv-.git
+cd AI-Misconception-Analyzer-Adv-
 cd YOUR_PROJECT_FOLDER
 ```
 
